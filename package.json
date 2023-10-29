@@ -1,6 +1,6 @@
 {
   "name": "konductor",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -12,7 +12,8 @@
     "nvmrc": "node -v > .nvmrc",
     "postinstall": "npm run nvmrc",
     "preinstall": "npm run nvmrc",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "lint_fix": "ng lint --fix"
   },
   "private": true,
   "dependencies": {
