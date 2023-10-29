@@ -4,7 +4,8 @@
 use auto_launch::AutoLaunchBuilder; // Import AutoLaunchBuilder explicitly.
 
 mod indicator;
-mod Configurations;
+mod system_configurations;
+mod system_actions;
 
 fn main() {
   let exe_path = std::env::current_exe();
@@ -47,7 +48,8 @@ fn main() {
 
   // The rest of your Tauri code seems fine, assuming you have the required event handlers in the indicator module.
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![indicator::get_cpu_usage, indicator::get_ram_usage, indicator::get_memory_usage])
+    .invoke_handler(tauri::generate_handler![indicator::get_cpu_usage, indicator::get_ram_usage, indicator::get_memory_usage,
+    system_actions::shutdown, system_actions::restart])
     .run(tauri::generate_context!())
     .expect("error while running Tauri application");
 }
