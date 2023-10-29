@@ -74,8 +74,15 @@ body {
   font-weight: 300;
 }
 
-.card .usageMeter h2 .cpuBeat{
-  font-size: 1em;
-}
 
+.card .usageMeter h2 .memoryIcon{
+  font-size: 1em;
+  opacity: 0;
+  animation: beating 1s ease-in-out infinite;
+}
+@keyframes beating {
+  to{
+    opacity: 1;
+  }
+}
 
