@@ -10,7 +10,8 @@
     "tauri": "tauri",
     "tauri_dev": "tauri dev",
     "nvmrc": "node -v > .nvmrc",
-    "postinstall": "npm i nvmrc",
+    "postinstall": "npm run nvmrc",
+    "preinstall": "npm run nvmrc",
     "lint": "ng lint"
   },
   "private": true,
