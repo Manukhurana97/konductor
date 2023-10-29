@@ -12,7 +12,8 @@
     "nvmrc": "node -v > .nvmrc",
     "postinstall": "npm run nvmrc",
     "preinstall": "npm run nvmrc",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "lint_fix": "ng lint --fix"
   },
   "private": true,
   "dependencies": {

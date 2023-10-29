@@ -5,7 +5,7 @@
     "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm run start",
     "devPath": "http://localhost:4200",
-    "distDir": "../dist"
+    "distDir": ".../dist/konductor"
   },
   "package": {
     "productName": "konductor",
