@@ -51,7 +51,5 @@ pub fn get_memory_usage_window() -> i32 {
     let total_bytes = (total_written_bytes + written_bytes + total_read_bytes + read_bytes) as f64;
     let percentage = ((total_bytes / memory_size ) * 100.0).round() as i32;
     return percentage;
-
-    return -1;
 }
 
