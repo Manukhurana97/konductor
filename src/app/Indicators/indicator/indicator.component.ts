@@ -58,4 +58,16 @@ export class IndicatorComponent {
         if (this.indicatorForm.value.memoryUsage == null) return 1
         return this.indicatorForm.value.memoryUsage
     }
+
+  getIconClass(icon: number): string {
+    if (icon >= 90) {
+      return 'memoryIconHighUsage';
+    } else if (icon >= 80) {
+      return 'memoryIconHighUsage';
+    } else if (icon < 20) {
+      return 'memoryIconLowUsage';
+    } else {
+      return 'memoryIcon';
+    }
+  }
 }

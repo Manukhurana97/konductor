@@ -86,3 +86,27 @@ body {
   }
 }
 
+.card .usageMeter h2 .memoryIconLowUsage{
+  font-size: 1em;
+  opacity: 0;
+  color: #0999ff;
+  animation: beating 2s ease-in-out infinite;
+}
+@keyframes beating {
+  to{
+    opacity: 1;
+  }
+}
+
+.card .usageMeter h2 .memoryIconHighUsage{
+  font-size: 1em;
+  opacity: 0;
+  color: #ff0039;
+  animation: beating .5s ease-in-out infinite;
+}
+@keyframes beating {
+  to{
+    opacity: 1;
+  }
+}
+
