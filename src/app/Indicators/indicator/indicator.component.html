@@ -4,7 +4,7 @@
     <h2>
       <span class="counter" data-target="getIndicatorForm().cpuUsage">{{getIndicatorForm().cpuUsage}}</span>
       <sup>%</sup> <br>
-      <fa-icon [icon]="faMicroChip" class="memoryIcon"></fa-icon>
+      <fa-icon [icon]="faMemory" [ngClass]="getIconClass(getCPU())"></fa-icon>
     </h2>
     <div *ngFor="let block of blocks; let i = index" [ngClass]="{'highlight': i <= getCPU()}"
          [style.animation-delay]="i / 40 + 's'"
@@ -16,7 +16,8 @@
   <div class="usageMeter">
     <h2><span class="counter" data-target="getIndicatorForm().cpuUsage">{{getIndicatorForm().ramUsage}}</span>
       <sup>%</sup> <br>
-      <fa-icon [icon]="faMemory" class="memoryIcon"></fa-icon>
+      <fa-icon [icon]="faMemory" [ngClass]="getIconClass(getRam())">
+      </fa-icon>
     </h2>
     <div *ngFor="let block of blocks; let i = index" [ngClass]="{'highlight': i <= getRam()}"
          [style.animation-delay]="i / 40 + 's'"
@@ -28,7 +29,7 @@
   <div class="usageMeter">
     <h2><span class="counter" data-target="getIndicatorForm().cpuUsage">{{getIndicatorForm().memoryUsage}}</span>
       <sup>%</sup> <br>
-      <fa-icon [icon]="faHdd" class="memoryIcon"></fa-icon>
+      <fa-icon [icon]="faMemory" [ngClass]="getIconClass(getMemory())"></fa-icon>
     </h2>
     <div *ngFor="let block of blocks; let i = index" [ngClass]="{'highlight': i <= getMemory()}"
          [style.animation-delay]="i / 40 + 's'"
