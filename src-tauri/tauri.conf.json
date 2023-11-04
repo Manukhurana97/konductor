@@ -80,7 +80,7 @@
       {
         "fullscreen": false,
         "height": 125,
-        "resizable": true,
+        "resizable": false,
         "title": "Konductor",
         "width": 500
       }
