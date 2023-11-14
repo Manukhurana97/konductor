@@ -70,3 +70,8 @@ jobs:
             See the assets to download this version and install.
           releaseDraft: true
           prerelease: false
+      - name: Update README with new version and download link
+        run: | 
+          echo "[Download Latest Version](https://github.com/Manukhurana97/konductor/releases/download/your-app-v${{ github.ref_name }}.zip)" > README.md
+        if: success()
+          
