@@ -1,8 +1,13 @@
-# Konductor
+# Konductor 
+![Build Status](https://github.com/Manukhurana97/konductor/workflows/Konductor%20Builder/badge.svg)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 Konductor is a lightweight desktop application built with Angular 16 and Rust on the Tauri framework. It provides real-time monitoring of CPU, memory, and disk usage on Windows.
 
 ![image](https://github.com/Manukhurana97/konductor/assets/38296197/5c579b67-e6b8-4666-9acb-afbe402cf762)
+
+
+
 
 ## Features
 
