@@ -72,6 +72,6 @@ jobs:
           prerelease: false
       - name: Update README with new version and download link
         run: | 
-          echo "[Download Latest Version](https://github.com/Manukhurana97/konductor/releases/download/your-app-v${{ github.ref_name }}.zip)" > README.md
+         echo "- **${{ github.ref_name }}:** [Download Latest Version](https://github.com/Manukhurana97/konductor/releases/download/your-app-v${{ github.ref_name }}.zip)" > README.md
         if: success()
           
