@@ -66,10 +66,3 @@ We welcome contributions! To contribute to Konductor, follow these steps:
 This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details.
 
 
-
-
-
-[alias]
-    gitship = "!f() { git add . && git commit -m \"$1\" && git push origin $(git symbolic-ref --short HEAD); }; f"
-
-
