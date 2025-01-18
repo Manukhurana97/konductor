@@ -26,7 +26,8 @@ Konductor is a lightweight desktop application built with Angular 16 and Rust on
 ## System Requirements
 
 - Windows OS
-- Minimum system resources: 0% CPU, 40-50 MB RAM
+- Space Required: 10Mb
+- Memory Required: 40-50Mb
 
 ## Installation
 
