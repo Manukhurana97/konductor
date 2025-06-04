@@ -72,3 +72,4 @@ jobs:
           echo "- **${{ github.ref_name }} (Windows):** [Download Latest Version](https://github.com/Manukhurana97/konductor/releases/download/${{ github.ref_name }}/your-app-windows.zip)" > README.md
           echo "- **${{ github.ref_name }} (Linux):** [Download Latest Version](https://github.com/Manukhurana97/konductor/releases/download/${{ github.ref_name }}/your-app-linux.AppImage)" >> README.md
 
+
