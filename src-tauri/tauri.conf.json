@@ -15,20 +15,20 @@
     "allowlist": {
       "all": false,
       "window": {
-        "all": false,
-        "close": false,
-        "hide": false,
-        "show": false,
-        "create": false,
-        "maximize": false,
-        "setDecorations": false,
-        "setMaximizable": false,
-        "setResizable": false,
-        "minimize": false,
-        "unmaximize": false,
-        "unminimize": false,
-        "startDragging": false,
-        "setSize": false
+        "all": true,
+        "close": true,
+        "hide": true,
+        "show": true,
+        "create": true,
+        "maximize": true,
+        "setDecorations": true,
+        "setMaximizable": true,
+        "setResizable": true,
+        "minimize": true,
+        "unmaximize": true,
+        "unminimize": true,
+        "startDragging": true,
+        "setSize": true
       }
     },
     "bundle": {
