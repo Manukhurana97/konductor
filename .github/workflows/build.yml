@@ -20,12 +20,13 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: latest
+          node-version: '20'
+          cache: 'npm'
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@1.75.0
@@ -44,10 +45,17 @@ jobs:
             patchelf \
             libsoup-2.4-dev \
             libsoup2.4-dev \
-            libsoup-3.0-dev
+            libsoup-3.0-dev \
+            libsoup-gnome2.4-dev \
+            libsoup-gnome2.4-1 \
+            libsoup2.4-1 \
+            libsoup-3.0-0 \
+            pkg-config \
+            libssl-dev \
+            libwebkit2gtk-4.0-dev
 
       - name: Install app dependencies
-        run: npm install
+        run: npm ci
 
       - name: Update Rust dependencies
         run: |
@@ -68,7 +76,7 @@ jobs:
           iconPath: src-tauri/icons/icon.png
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: konductor-${{ matrix.platform }}
           path: |
