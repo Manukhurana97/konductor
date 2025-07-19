@@ -11,17 +11,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-latest, windows-latest]   # Add ubuntu-latest here
+        platform: [ubuntu-22.04, windows-latest]
         include:
-          - os: ubuntu-latest
+          - platform: ubuntu-22.04
             rust_target: x86_64-unknown-linux-gnu
-          - os: windows-latest
+          - platform: windows-latest
             rust_target: x86_64-pc-windows-msvc
-          # You can keep macOS if you want:
-          # - os: macos-latest
-          #   rust_target: x86_64-apple-darwin
-          # - os: macos-latest
-          #   rust_target: aarch64-apple-darwin
 
     runs-on: ${{ matrix.platform }}
 
@@ -33,24 +28,34 @@ jobs:
         id: build_changelog
         run: echo "changelog=- ADD CHANGELOG" >> $GITHUB_OUTPUT
 
-      - name: Node.js setup
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: latest
+          node-version: 20
 
-      - name: Install Rust (Stable)
-        run: curl https://sh.rustup.rs -sSf | sh -s -- -y
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust_target }}
 
-      - name: Install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-latest'
+      - name: Install Linux dependencies
+        if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libappindicator3-dev librsvg2-dev patchelf
+          sudo apt-get install -y \
+            libwebkit2gtk-4.0-dev \
+            build-essential \
+            curl \
+            wget \
+            libssl-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
 
       - name: Install app dependencies and build web
-        run: npm install && npm run build
+        run: npm ci && npm run build
 
-      - name: Build the app with tauri-action
+      - name: Build the app with Tauri
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -68,6 +73,5 @@ jobs:
       - name: Update README with new version and download link
         if: success()
         run: |
-          # Build direct download URLs for both platforms
           echo "- **${{ github.ref_name }} (Windows):** [Download Latest Version](https://github.com/Manukhurana97/konductor/releases/download/${{ github.ref_name }}/your-app-windows.zip)" > README.md
           echo "- **${{ github.ref_name }} (Linux):** [Download Latest Version](https://github.com/Manukhurana97/konductor/releases/download/${{ github.ref_name }}/your-app-linux.AppImage)" >> README.md
