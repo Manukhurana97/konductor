@@ -1,10 +1,12 @@
-name: Build on Push
+name: Release Build
 
 on:
   push:
+    branches:
+      - main
 
 jobs:
-  build:
+  release:
     strategy:
       fail-fast: false
       matrix:
@@ -27,7 +29,7 @@ jobs:
           node-version: '20.19.4'
           cache: 'npm'
 
-      - name: Install Rust (1.77.2)
+      - name: Install Rust
         uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: 1.77.2
@@ -58,7 +60,24 @@ jobs:
       - name: Build web assets
         run: npm run build
 
-      - name: Build Tauri app (no publish)
+      - name: Bump patch version (optional)
+        run: |
+          cd src-tauri
+          version=$(cargo pkgid | sed 's/.*#//')
+          IFS='.' read -ra vers <<< "$version"
+          next_version="${vers[0]}.${vers[1]}.$((vers[2]+1))"
+          cargo set-version "$next_version"
+          echo "New version: $next_version"
+
+      - name: Commit version bump
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add src-tauri/Cargo.toml
+          git commit -m "ci: bump version"
+          git push
+
+      - name: Build Tauri App
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -66,3 +85,11 @@ jobs:
           args: --config tauri.conf.json
           distPath: ../dist/konductor
           iconPath: src-tauri/icons/icon.png
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            src-tauri/target/release/bundle/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
