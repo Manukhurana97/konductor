@@ -36,6 +36,7 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
+          toolchain: 1.82.0
           targets: ${{ matrix.rust_target }}
 
       - name: Install Linux dependencies
@@ -43,14 +44,15 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            libwebkit2gtk-4.0-dev \
+            libwebkit2gtk-4.1-dev \
             build-essential \
             curl \
             wget \
             libssl-dev \
             libgtk-3-dev \
             libayatana-appindicator3-dev \
-            librsvg2-dev
+            librsvg2-dev \
+            libsoup2.4-dev
 
       - name: Install app dependencies and build web
         run: npm ci && npm run build
