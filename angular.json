@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "Konductor": {
+    "konductor": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -59,20 +59,19 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "buildTarget": "konductor:build"
+          },
           "configurations": {
             "production": {
-              "browserTarget": "Konductor:build:production"
-            },
-            "development": {
-              "browserTarget": "Konductor:build:development"
+              "buildTarget": "konductor:build:production"
             }
-          },
-          "defaultConfiguration": "development"
+          }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "Konductor:build"
+            "buildTarget": "konductor:build"
           }
         },
         "test": {
@@ -109,6 +108,8 @@
   "cli": {
     "schematicCollections": [
       "@angular-eslint/schematics"
-    ]
-  }
+    ],
+    "analytics": "da6fd55e-4659-435e-8ea2-bddfbf14497b"
+  },
+  "defaultProject": "konductor"
 }

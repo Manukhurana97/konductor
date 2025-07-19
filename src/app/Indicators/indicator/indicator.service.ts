@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core'
-import { invoke } from '@tauri-apps/api/tauri'
+import { invoke } from '@tauri-apps/api/core'
 
 @Injectable({
     providedIn: 'root',
@@ -17,6 +17,15 @@ export class IndicatorService {
 
     async getMemoryUsage() {
         return await this.getMemoryUsageAsync()
+    }
+
+    async getSystemInfo(): Promise<any> {
+        try {
+            return await invoke('get_system_info')
+        } catch (e) {
+            console.error('Error occurred while getting system info', e)
+            throw e
+        }
     }
 
     private async getCpuUsageAsync(): Promise<number> {
