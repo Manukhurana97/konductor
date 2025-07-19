@@ -2,38 +2,44 @@
 <div class="card">
   <div class="usageMeter">
     <h2>
-      <span class="counter" data-target="getIndicatorForm().cpuUsage">{{getIndicatorForm().cpuUsage}}</span>
+      <span class="counter" data-target="getIndicatorForm().cpuUsage">{{ getIndicatorForm().cpuUsage }}</span>
       <sup>%</sup> <br>
       <fa-icon [icon]="faMicroChip" [ngClass]="getIconClass('cpu', getCPU())"></fa-icon>
     </h2>
-    <div *ngFor="let block of blocks; let i = index" [ngClass]="{'highlight': i <= getCPU()}"
-         [style.animation-delay]="i / 40 + 's'"
-         [style.transform]="'rotate(' + block + 'deg)'" class="block"></div>
+    @for (block of blocks; track blocks; let i = $index) {
+      <div [ngClass]="{'highlight': i <= getCPU()}"
+           [style.animation-delay]="i / 40 + 's'"
+           [style.transform]="'rotate(' + block + 'deg)'" class="block"></div>
+    }
   </div>
 </div>
 
 <div class="card">
   <div class="usageMeter">
-    <h2><span class="counter" data-target="getIndicatorForm().cpuUsage">{{getIndicatorForm().ramUsage}}</span>
+    <h2><span class="counter" data-target="getIndicatorForm().cpuUsage">{{ getIndicatorForm().ramUsage }}</span>
       <sup>%</sup> <br>
       <fa-icon [icon]="faMemory" [ngClass]="getIconClass('ram', getRam())">
       </fa-icon>
     </h2>
-    <div *ngFor="let block of blocks; let i = index" [ngClass]="{'highlight': i <= getRam()}"
-         [style.animation-delay]="i / 40 + 's'"
-         [style.transform]="'rotate(' + block + 'deg)'" class="block"></div>
+    @for (block of blocks; track blocks; let i = $index) {
+      <div [ngClass]="{'highlight': i <= getRam()}"
+           [style.animation-delay]="i / 40 + 's'"
+           [style.transform]="'rotate(' + block + 'deg)'" class="block"></div>
+    }
   </div>
 </div>
 
 <div class="card">
   <div class="usageMeter">
-    <h2><span class="counter" data-target="getIndicatorForm().cpuUsage">{{getIndicatorForm().memoryUsage}}</span>
+    <h2><span class="counter" data-target="getIndicatorForm().cpuUsage">{{ getIndicatorForm().memoryUsage }}</span>
       <sup>%</sup> <br>
       <fa-icon [icon]="faHdd" [ngClass]="getIconClass('disk', getMemory())"></fa-icon>
     </h2>
-    <div *ngFor="let block of blocks; let i = index" [ngClass]="{'highlight': i <= getMemory()}"
-         [style.animation-delay]="i / 40 + 's'"
-         [style.transform]="'rotate(' + block + 'deg)'" class="block"></div>
+    @for (block of blocks; track blocks; let i = $index) {
+      <div [ngClass]="{'highlight': i <= getMemory()}"
+           [style.animation-delay]="i / 40 + 's'"
+           [style.transform]="'rotate(' + block + 'deg)'" class="block"></div>
+    }
   </div>
 </div>
 

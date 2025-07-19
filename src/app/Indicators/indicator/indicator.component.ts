@@ -2,10 +2,13 @@ import { Component } from '@angular/core'
 import { IndicatorService } from './indicator.service'
 import { FormBuilder } from '@angular/forms'
 import { faHdd, faMemory, faMicrochip } from '@fortawesome/free-solid-svg-icons'
+import { FaIconComponent } from '@fortawesome/angular-fontawesome'
+import { NgClass } from '@angular/common'
 
 @Component({
     selector: 'app-indicator',
     templateUrl: './indicator.component.html',
+    imports: [FaIconComponent, NgClass],
     styleUrls: ['./indicator.component.scss'],
 })
 export class IndicatorComponent {
@@ -59,21 +62,27 @@ export class IndicatorComponent {
         return this.indicatorForm.value.memoryUsage
     }
 
-  getIconClass(type: 'cpu' | 'ram' | 'disk', value: number): string {
-    let base = '';
-    switch(type) {
-      case 'cpu': base = 'cpuIcon'; break;
-      case 'ram': base = 'ramIcon'; break;
-      case 'disk': base = 'diskIcon'; break;
+    getIconClass(type: 'cpu' | 'ram' | 'disk', value: number): string {
+        let base = ''
+        switch (type) {
+            case 'cpu':
+                base = 'cpuIcon'
+                break
+            case 'ram':
+                base = 'ramIcon'
+                break
+            case 'disk':
+                base = 'diskIcon'
+                break
+        }
+        if (value >= 90) {
+            return base + 'HighUsage'
+        } else if (value >= 80) {
+            return base + 'HighUsage'
+        } else if (value < 20) {
+            return base + 'LowUsage'
+        } else {
+            return base
+        }
     }
-    if (value >= 90) {
-      return base + 'HighUsage';
-    } else if (value >= 80) {
-      return base + 'HighUsage';
-    } else if (value < 20) {
-      return base + 'LowUsage';
-    } else {
-      return base;
-    }
-  }
 }
