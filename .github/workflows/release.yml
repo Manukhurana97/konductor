@@ -1,0 +1,95 @@
+name: Release Build
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-latest, windows-latest]
+        include:
+          - platform: ubuntu-latest
+            rust_target: x86_64-unknown-linux-gnu
+          - platform: windows-latest
+            rust_target: x86_64-pc-windows-msvc
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.4'
+          cache: 'npm'
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: 1.82.0
+          targets: ${{ matrix.rust_target }}
+
+      - name: Install Linux dependencies
+        if: matrix.platform == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgtk-3-dev \
+            libwebkit2gtk-4.0-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            pkg-config \
+            libssl-dev \
+            libsoup-3.0-dev
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Update Rust dependencies
+        run: |
+          cd src-tauri
+          cargo update
+
+      - name: Build web assets
+        run: npm run build
+
+      - name: Bump patch version (optional)
+        run: |
+          cd src-tauri
+          version=$(cargo pkgid | sed 's/.*#//')
+          IFS='.' read -ra vers <<< "$version"
+          next_version="${vers[0]}.${vers[1]}.$((vers[2]+1))"
+          cargo set-version "$next_version"
+          echo "New version: $next_version"
+
+      - name: Commit version bump
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add src-tauri/Cargo.toml
+          git commit -m "ci: bump version"
+          git push
+
+      - name: Build Tauri App
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: --config tauri.conf.json
+          distPath: ../dist/konductor
+          iconPath: src-tauri/icons/icon.png
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            src-tauri/target/release/bundle/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
