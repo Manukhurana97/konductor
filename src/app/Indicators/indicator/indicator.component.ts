@@ -59,15 +59,21 @@ export class IndicatorComponent {
         return this.indicatorForm.value.memoryUsage
     }
 
-  getIconClass(icon: number): string {
-    if (icon >= 90) {
-      return 'memoryIconHighUsage';
-    } else if (icon >= 80) {
-      return 'memoryIconHighUsage';
-    } else if (icon < 20) {
-      return 'memoryIconLowUsage';
+  getIconClass(type: 'cpu' | 'ram' | 'disk', value: number): string {
+    let base = '';
+    switch(type) {
+      case 'cpu': base = 'cpuIcon'; break;
+      case 'ram': base = 'ramIcon'; break;
+      case 'disk': base = 'diskIcon'; break;
+    }
+    if (value >= 90) {
+      return base + 'HighUsage';
+    } else if (value >= 80) {
+      return base + 'HighUsage';
+    } else if (value < 20) {
+      return base + 'LowUsage';
     } else {
-      return 'memoryIcon';
+      return base;
     }
   }
 }
