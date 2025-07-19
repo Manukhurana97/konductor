@@ -1,45 +1,40 @@
-name: Build on Push
+name: Build App
 
 on:
   push:
+    branches:
+      - '**'
+  pull_request:
 
 jobs:
   build:
+    runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
-        platform: [ubuntu-latest, windows-latest]
-        include:
-          - platform: ubuntu-latest
-            rust_target: x86_64-unknown-linux-gnu
-          - platform: windows-latest
-            rust_target: x86_64-pc-windows-msvc
-
-    runs-on: ${{ matrix.platform }}
+        os: [ubuntu-latest, windows-latest]
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.19.4'
+          node-version: 20
           cache: 'npm'
 
-      - name: Install Rust (1.77.2)
-        uses: dtolnay/rust-toolchain@v1
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: 1.77.2
-          targets: ${{ matrix.rust_target }}
 
       - name: Install Linux dependencies
-        if: matrix.platform == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
             libgtk-3-dev \
-            libwebkit2gtk-4.0-dev \
             libappindicator3-dev \
             librsvg2-dev \
             patchelf \
@@ -47,22 +42,21 @@ jobs:
             libssl-dev \
             libsoup-3.0-dev
 
-      - name: Install Node dependencies
+      - name: Install frontend dependencies
         run: npm ci
 
-      - name: Update Rust dependencies
-        run: |
-          cd src-tauri
-          cargo update
-
-      - name: Build web assets
+      - name: Build Angular
         run: npm run build
 
-      - name: Build Tauri app (no publish)
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli --version "^2.0.0"
+
+      - name: Build Tauri App (Debug/Test)
+        run: npm run tauri build
+
+      - name: Upload Build Artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
         with:
-          args: --config tauri.conf.json
-          distPath: ../dist/konductor
-          iconPath: src-tauri/icons/icon.png
+          name: konductor-${{ matrix.os }}
+          path: src-tauri/target/release/bundle
