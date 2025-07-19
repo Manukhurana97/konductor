@@ -110,3 +110,57 @@ body {
   }
 }
 
+.card .usageMeter h2 .cpuIcon{
+  font-size: 1em;
+  opacity: 0;
+  animation: beating 1s ease-in-out infinite;
+}
+.card .usageMeter h2 .cpuIconLowUsage{
+  font-size: 1em;
+  opacity: 0;
+  color: #0999ff;
+  animation: beating 2s ease-in-out infinite;
+}
+.card .usageMeter h2 .cpuIconHighUsage{
+  font-size: 1em;
+  opacity: 0;
+  color: #ff0039;
+  animation: beating .5s ease-in-out infinite;
+}
+
+.card .usageMeter h2 .ramIcon{
+  font-size: 1em;
+  opacity: 0;
+  animation: beating 1s ease-in-out infinite;
+}
+.card .usageMeter h2 .ramIconLowUsage{
+  font-size: 1em;
+  opacity: 0;
+  color: #0999ff;
+  animation: beating 2s ease-in-out infinite;
+}
+.card .usageMeter h2 .ramIconHighUsage{
+  font-size: 1em;
+  opacity: 0;
+  color: #ff0039;
+  animation: beating .5s ease-in-out infinite;
+}
+
+.card .usageMeter h2 .diskIcon{
+  font-size: 1em;
+  opacity: 0;
+  animation: beating 1s ease-in-out infinite;
+}
+.card .usageMeter h2 .diskIconLowUsage{
+  font-size: 1em;
+  opacity: 0;
+  color: #0999ff;
+  animation: beating 2s ease-in-out infinite;
+}
+.card .usageMeter h2 .diskIconHighUsage{
+  font-size: 1em;
+  opacity: 0;
+  color: #ff0039;
+  animation: beating .5s ease-in-out infinite;
+}
+

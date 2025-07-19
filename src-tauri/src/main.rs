@@ -5,8 +5,26 @@ use auto_launch::AutoLaunchBuilder; // Import AutoLaunchBuilder explicitly.
 
 mod indicator;
 mod Configurations;
+#[cfg(target_os = "linux")]
+mod tray_linux;
 
 fn main() {
+  #[cfg(target_os = "linux")]
+  {
+    use tauri::Manager;
+    let (system_tray, stats) = tray_linux::build_linux_tray();
+    let app = tauri::Builder::default()
+      .system_tray(system_tray)
+      .on_system_tray_event(|app, event| {
+        tray_linux::handle_tray_event(app, &event);
+      })
+      .invoke_handler(tauri::generate_handler![indicator::get_cpu_usage, indicator::get_ram_usage, indicator::get_memory_usage])
+      .run(tauri::generate_context!())
+      .expect("error while running Tauri application");
+    tray_linux::start_stats_updater(app.app_handle(), stats);
+    return;
+  }
+
   let exe_path = std::env::current_exe();
 
   match exe_path {
