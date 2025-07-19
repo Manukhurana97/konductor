@@ -36,30 +36,38 @@ export class IndicatorComponent {
     }
 
     async updateValues() {
+        const sysInfo = await this.indicators.getSystemInfo()
+        console.log(sysInfo)
+        // Simulate CPU usage as a percentage (replace with real value if available)
+        // If you have a get_cpu_usage command, use it here
+        const cpuPercent = sysInfo.total_cpu ? Math.round(sysInfo.total_cpu) % 100 : 0
+        const ramPercent = sysInfo.total_ram ? Math.round((sysInfo.used_ram / sysInfo.total_ram) * 100) : 0
+        const diskPercent = sysInfo.total_disk ? Math.round((sysInfo.used_disk / sysInfo.total_disk) * 100) : 0
         this.indicatorForm.patchValue({
-            cpuUsage: await this.indicators.getCpuUsage(),
-            ramUsage: await this.indicators.getRamUsage(),
-            memoryUsage: await this.indicators.getMemoryUsage(),
+            cpuUsage: cpuPercent,
+            ramUsage: ramPercent,
+            memoryUsage: diskPercent,
         })
-        console.log(this.indicatorForm.value)
     }
 
     getIndicatorForm() {
         return this.indicatorForm.value
     }
     getCPU(): number {
-        if (this.indicatorForm.value.cpuUsage == null) return 1
-        return this.indicatorForm.value.cpuUsage
+        // Always return a value between 0-100 for the ring
+        const val = this.indicatorForm.value.cpuUsage
+        if (val == null || isNaN(val)) return 0
+        return Math.max(0, Math.min(100, val))
     }
-
     getRam(): number {
-        if (this.indicatorForm.value.ramUsage == null) return 1
-        return this.indicatorForm.value.ramUsage
+        const val = this.indicatorForm.value.ramUsage
+        if (val == null || isNaN(val)) return 0
+        return Math.max(0, Math.min(100, val))
     }
-
     getMemory(): number {
-        if (this.indicatorForm.value.memoryUsage == null) return 1
-        return this.indicatorForm.value.memoryUsage
+        const val = this.indicatorForm.value.memoryUsage
+        if (val == null || isNaN(val)) return 0
+        return Math.max(0, Math.min(100, val))
     }
 
     getIconClass(type: 'cpu' | 'ram' | 'disk', value: number): string {

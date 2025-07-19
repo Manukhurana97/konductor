@@ -1,71 +1,36 @@
-// Prevents additional console window on Windows in release, DO NOT REMOVE!!
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+use tauri::Manager;
+use sysinfo::System;
+use sysinfo::Disks;
 
-use auto_launch::AutoLaunchBuilder; // Import AutoLaunchBuilder explicitly.
+#[tauri::command]
+fn get_system_info() -> Result<serde_json::Value, String> {
+    let mut sys = System::new_all();
+    sys.refresh_all();
 
-mod indicator;
-mod Configurations;
-#[cfg(target_os = "linux")]
-mod tray_linux;
+    // RAM in kB
+    let total_ram = sys.total_memory();
+    let used_ram = sys.used_memory();
+
+    // CPU
+    let total_cpu = sys.cpus().len();
+
+    // Disk usage (sum of all disks)
+    let disks = Disks::new_with_refreshed_list();
+    let total_disk: u64 = disks.list().iter().map(|d| d.total_space()).sum();
+    let used_disk: u64 = disks.list().iter().map(|d| d.total_space() - d.available_space()).sum();
+
+    Ok(serde_json::json!({
+        "total_ram": total_ram,
+        "used_ram": used_ram,
+        "total_cpu": total_cpu,
+        "total_disk": total_disk,
+        "used_disk": used_disk
+    }))
+}
 
 fn main() {
-  #[cfg(target_os = "linux")]
-  {
-    use tauri::Manager;
-    let (system_tray, stats) = tray_linux::build_linux_tray();
-    let app = tauri::Builder::default()
-      .system_tray(system_tray)
-      .on_system_tray_event(|app, event| {
-        tray_linux::handle_tray_event(app, &event);
-      })
-      .invoke_handler(tauri::generate_handler![indicator::get_cpu_usage, indicator::get_ram_usage, indicator::get_memory_usage])
-      .run(tauri::generate_context!())
-      .expect("error while running Tauri application");
-    tray_linux::start_stats_updater(app.app_handle(), stats);
-    return;
-  }
-
-  let exe_path = std::env::current_exe();
-
-  match exe_path {
-    Ok(path) => {
-      if let Some(installation_location) = path.parent() {
-        let mut installation_location_str = installation_location.to_string_lossy().to_string();
-        installation_location_str+="\\konductor";
-        let auto = AutoLaunchBuilder::new()
-          .set_app_name("konductor")
-          .set_app_path(installation_location_str.as_str())
-          .set_use_launch_agent(true)
-          .build()
-          .unwrap();
-
-        auto.enable().unwrap();
-        let is_enabled = auto.is_enabled().unwrap();
-        if is_enabled {
-          println!("Auto-launch is enabled. {:?}", installation_location_str);
-        } else {
-          println!("Auto-launch is not enabled.");
-        }
-
-        // auto.disable().unwrap();
-        // let is_enabled = auto.is_enabled().unwrap();
-        // if is_enabled {
-        //   println!("Auto-launch is still enabled after disabling. You might want to handle this case.");
-        // } else {
-        //   println!("Auto-launch is disabled.");
-        // }
-      } else {
-        eprintln!("Installation location is None.");
-      }
-    }
-    Err(err) => {
-      eprintln!("Error: {:?}", err);
-    }
-  }
-
-  // The rest of your Tauri code seems fine, assuming you have the required event handlers in the indicator module.
-  tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![indicator::get_cpu_usage, indicator::get_ram_usage, indicator::get_memory_usage])
-    .run(tauri::generate_context!())
-    .expect("error while running Tauri application");
+    tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![get_system_info])
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
 }

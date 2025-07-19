@@ -19,6 +19,15 @@ export class IndicatorService {
         return await this.getMemoryUsageAsync()
     }
 
+    async getSystemInfo(): Promise<any> {
+        try {
+            return await invoke('get_system_info')
+        } catch (e) {
+            console.error('Error occurred while getting system info', e)
+            throw e
+        }
+    }
+
     private async getCpuUsageAsync(): Promise<number> {
         try {
             return (await invoke('get_cpu_usage')) as unknown as number
