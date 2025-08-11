@@ -2,7 +2,7 @@
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "konductor",
   "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "identifier": "io.github.manukhurana97.konductor",
   "build": {
     "frontendDist": "../dist/konductor",
     "devUrl": "http://localhost:4200",
