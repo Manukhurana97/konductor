@@ -69,7 +69,8 @@ jobs:
             patchelf \
             libsoup-3.0-dev \
             pkg-config \
-            libssl-dev
+            libssl-dev \
+            libxdo-dev
 
       # Windows-specific system dependencies not required with current crate set
 
