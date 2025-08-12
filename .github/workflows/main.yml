@@ -28,6 +28,7 @@ jobs:
 
       - name: Build Changelog
         id: build_changelog
+        shell: bash
         run: |
           if [ "${{ github.event_name }}" = "push" ]; then
             # For tag pushes, generate changelog from commits since last tag

@@ -30,7 +30,7 @@ image = { version = "0.25", default-features = false, features = ["png", "ico"] 
 gtk = { version = "0.18", features = ["v3_24"] }
 
 [target.'cfg(target_os = "windows")'.dependencies]
-# Windows-specific dependencies if needed
+winapi = { version = "0.3", features = ["winuser", "shellapi", "commctrl"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 # macOS-specific dependencies if needed
