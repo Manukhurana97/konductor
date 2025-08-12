@@ -37,6 +37,44 @@ A Tauri application with system tray functionality for Linux.
 npm run tauri build
 ```
 
+## Release Workflow
+
+This project uses automated GitHub Actions for building and releasing:
+
+### Automatic Releases
+When you merge code to the `main` branch, the pipeline automatically:
+- Builds the application for Linux and Windows
+- Creates a new release with an incremented patch version
+- Uploads the built binaries to GitHub Releases
+
+### Manual Releases
+For major/minor releases or manual builds:
+```bash
+# Create a manual release with specific version
+./scripts/release.sh manual-release v2.0.0
+
+# Check current release status
+./scripts/release.sh check-status
+```
+
+### Release Script
+Use the included release script for easy release management:
+```bash
+# Show help
+./scripts/release.sh help
+
+# Check current status
+./scripts/release.sh check-status
+
+# Create automatic release (from main branch)
+./scripts/release.sh auto-release
+
+# Create manual release with specific version
+./scripts/release.sh manual-release v2.0.0
+```
+
+For detailed information about the release workflow, see [RELEASE_WORKFLOW.md](RELEASE_WORKFLOW.md).
+
 ## System Tray Implementation
 
 The system tray functionality is implemented using the `tray-icon` crate and includes:
@@ -56,6 +94,7 @@ The system tray functionality is implemented using the `tray-icon` crate and inc
 
 Currently tested and working on:
 - Linux (Ubuntu 22.04+)
+- Windows (with automated builds)
 
 ## License
 

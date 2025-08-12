@@ -1,11 +1,10 @@
-name: Konductor Builder
+name: Manual Release Builder
 
 on:
   push:
     tags:
       - "v*"
   workflow_dispatch:
-
 
 jobs:
   release:
@@ -24,15 +23,33 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Build Changelog
         id: build_changelog
-        run: echo "changelog=- ADD CHANGELOG" >> $GITHUB_OUTPUT
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            # For tag pushes, generate changelog from commits since last tag
+            previous_tag=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
+            if [ -n "$previous_tag" ]; then
+              changelog=$(git log --pretty=format:"- %s" ${previous_tag}..HEAD)
+            else
+              changelog="- Initial release"
+            fi
+          else
+            # For manual dispatch, use a default message
+            changelog="- Manual release build"
+          fi
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$changelog" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version-file: '.nvmrc'
           cache: 'npm'
 
       - name: Install Rust
@@ -46,14 +63,17 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             libgtk-3-dev \
-            webkit2gtk-4.1 \
-            libappindicator3-dev \
+            libwebkit2gtk-4.1 \
+            libwebkit2gtk-4.1-dev \
+            libayatana-appindicator3-dev \
             librsvg2-dev \
             patchelf \
             libsoup-3.0-dev \
             pkg-config \
             libssl-dev \
-            libwebkit2gtk-4.1-dev
+            libxdo-dev
+
+      # Windows-specific system dependencies not required with current crate set
 
       - name: Install app dependencies and build web
         run: npm ci && npm run build
@@ -67,16 +87,20 @@ jobs:
         with:
           args: --config src-tauri/tauri.conf.json
           tagName: ${{ github.ref_name }}
-          releaseName: "[Unaffiliated] v__VERSION__"
+          releaseName: "[Unaffiliated] ${{ github.ref_name }}"
           releaseBody: |
+            ## Release ${{ github.ref_name }}
+            
+            ### Changes in this release:
             ${{ steps.build_changelog.outputs.changelog }}
+            
             See the assets to download this version and install.
-          releaseDraft: true
+          releaseDraft: false
           prerelease: false
 
       - name: Update README with new version
         if: success()
-          run: |
-            echo "✅ Release ${{ github.ref_name }} built successfully!" > release-notes.txt
-            echo "Check the release page for download links." >> release-notes.txt
+        run: |
+          echo "✅ Manual Release ${{ github.ref_name }} built successfully!" > release-notes.txt
+          echo "Check the release page for download links." >> release-notes.txt
 
