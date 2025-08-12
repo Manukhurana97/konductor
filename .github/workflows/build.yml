@@ -78,6 +78,7 @@ jobs:
       - name: Generate version and tag
         id: version
         if: github.ref == 'refs/heads/main'
+        shell: bash
         run: |
           latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           echo "Latest tag: $latest_tag"
