@@ -74,8 +74,8 @@ jobs:
           prerelease: false
 
       - name: Update README with new version
-  if: success()
-  run: |
-    echo "✅ Release ${{ github.ref_name }} built successfully!" > release-notes.txt
-    echo "Check the release page for download links." >> release-notes.txt
+        if: success()
+          run: |
+            echo "✅ Release ${{ github.ref_name }} built successfully!" > release-notes.txt
+            echo "Check the release page for download links." >> release-notes.txt
 
