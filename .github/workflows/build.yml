@@ -22,6 +22,16 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate version and tags
+        id: version
+        shell: bash
+        run: |
+          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
+          echo "version=${latest_tag#v}" >> $GITHUB_OUTPUT
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -69,6 +79,7 @@ jobs:
           args: --config src-tauri/tauri.conf.json
           distPath: ../dist/konductor
           iconPath: src-tauri/icons/icon.png
+          tagName: ${{ steps.version.outputs.latest_tag }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
