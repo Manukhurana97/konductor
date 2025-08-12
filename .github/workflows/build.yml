@@ -1,4 +1,4 @@
-name: Build on Main
+name: Build and Release on Main
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-release:
     strategy:
       fail-fast: false
       matrix:
@@ -22,11 +22,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version-file: '.nvmrc'
           cache: 'npm'
 
       - name: Install Rust
@@ -47,7 +50,52 @@ jobs:
             libsoup-3.0-dev \
             pkg-config \
             libssl-dev \
-            libwebkit2gtk-4.1-dev
+            libwebkit2gtk-4.1-dev \
+            libglib2.0-dev \
+            libcairo2-dev \
+            libpango1.0-dev \
+            libatk1.0-dev \
+            libgdk-pixbuf2.0-dev \
+            libgtk-3-dev \
+            libx11-dev \
+            libxrandr-dev \
+            libxss-dev \
+            libxtst-dev \
+            libxdamage-dev \
+            libxfixes-dev \
+            libxcomposite-dev \
+            libasound2-dev \
+            libpulse-dev \
+            libdbus-1-dev \
+            libudev-dev \
+            libgudev-1.0-dev \
+            libgstreamer1.0-dev \
+            libgstreamer-plugins-base1.0-dev \
+            libgstreamer-plugins-bad1.0-dev \
+            libgstreamer-gl1.0-dev \
+            libgstreamer-plugins-base1.0-dev \
+            libgstreamer-plugins-good1.0-dev \
+            libgstreamer-plugins-bad1.0-dev \
+            libgstreamer-plugins-ugly1.0-dev \
+            libgstreamer-libav1.0-dev \
+            libgstreamer-plugins-base1.0-dev \
+            libgstreamer-plugins-good1.0-dev \
+            libgstreamer-plugins-bad1.0-dev \
+            libgstreamer-plugins-ugly1.0-dev \
+            libgstreamer-libav1.0-dev \
+            libgstreamer-plugins-base1.0-dev \
+            libgstreamer-plugins-good1.0-dev \
+            libgstreamer-plugins-bad1.0-dev \
+            libgstreamer-plugins-ugly1.0-dev \
+            libgstreamer-libav1.0-dev
+
+      - name: Install Windows dependencies
+        if: matrix.platform == 'windows-latest'
+        run: |
+          # Install pkg-config equivalent for Windows
+          choco install pkg-config-lite -y
+          # Add to PATH
+          echo "$env:ChocolateyInstall\bin" >> $env:GITHUB_PATH
 
       - name: Install app dependencies
         run: npm ci
@@ -61,18 +109,61 @@ jobs:
       - name: Build web assets
         run: npm run build
 
+      - name: Generate version and tag
+        id: version
+        if: matrix.platform == 'ubuntu-latest'
+        run: |
+          # Get the latest tag
+          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "Latest tag: $latest_tag"
+          
+          # Extract version numbers
+          version_parts=(${latest_tag//./ })
+          major=${version_parts[0]#v}
+          minor=${version_parts[1]}
+          patch=${version_parts[2]}
+          
+          # Increment patch version
+          new_patch=$((patch + 1))
+          new_version="v${major}.${minor}.${new_patch}"
+          
+          echo "New version: $new_version"
+          echo "version=$new_version" >> $GITHUB_OUTPUT
+          echo "tag_name=$new_version" >> $GITHUB_OUTPUT
+
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
           args: --config src-tauri/tauri.conf.json
           distPath: ../dist/konductor
           iconPath: src-tauri/icons/icon.png
+          tagName: ${{ steps.version.outputs.tag_name }}
+          releaseName: "[Unaffiliated] ${{ steps.version.outputs.version }}"
+          releaseBody: |
+            ## Release ${{ steps.version.outputs.version }}
+            
+            ### Changes in this release:
+            - Auto-generated release from main branch merge
+            - Built for ${{ matrix.platform }}
+            
+            See the assets to download this version and install.
+          releaseDraft: false
+          prerelease: false
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: konductor-${{ matrix.platform }}
+          name: konductor-${{ matrix.platform }}-${{ steps.version.outputs.version }}
           path: |
             src-tauri/target/release/bundle/
+
+      - name: Create Release Summary
+        if: matrix.platform == 'ubuntu-latest' && success()
+        run: |
+          echo "✅ Release ${{ steps.version.outputs.version }} built successfully!" > release-notes.txt
+          echo "Platform: ${{ matrix.platform }}" >> release-notes.txt
+          echo "Check the release page for download links." >> release-notes.txt

@@ -1,11 +1,10 @@
-name: Konductor Builder
+name: Manual Release Builder
 
 on:
   push:
     tags:
       - "v*"
   workflow_dispatch:
-
 
 jobs:
   release:
@@ -24,15 +23,32 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Build Changelog
         id: build_changelog
-        run: echo "changelog=- ADD CHANGELOG" >> $GITHUB_OUTPUT
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            # For tag pushes, generate changelog from commits since last tag
+            previous_tag=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
+            if [ -n "$previous_tag" ]; then
+              changelog=$(git log --pretty=format:"- %s" ${previous_tag}..HEAD)
+            else
+              changelog="- Initial release"
+            fi
+          else
+            # For manual dispatch, use a default message
+            changelog="- Manual release build"
+          fi
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$changelog" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version-file: '.nvmrc'
           cache: 'npm'
 
       - name: Install Rust
@@ -53,7 +69,52 @@ jobs:
             libsoup-3.0-dev \
             pkg-config \
             libssl-dev \
-            libwebkit2gtk-4.1-dev
+            libwebkit2gtk-4.1-dev \
+            libglib2.0-dev \
+            libcairo2-dev \
+            libpango1.0-dev \
+            libatk1.0-dev \
+            libgdk-pixbuf2.0-dev \
+            libgtk-3-dev \
+            libx11-dev \
+            libxrandr-dev \
+            libxss-dev \
+            libxtst-dev \
+            libxdamage-dev \
+            libxfixes-dev \
+            libxcomposite-dev \
+            libasound2-dev \
+            libpulse-dev \
+            libdbus-1-dev \
+            libudev-dev \
+            libgudev-1.0-dev \
+            libgstreamer1.0-dev \
+            libgstreamer-plugins-base1.0-dev \
+            libgstreamer-plugins-bad1.0-dev \
+            libgstreamer-gl1.0-dev \
+            libgstreamer-plugins-base1.0-dev \
+            libgstreamer-plugins-good1.0-dev \
+            libgstreamer-plugins-bad1.0-dev \
+            libgstreamer-plugins-ugly1.0-dev \
+            libgstreamer-libav1.0-dev \
+            libgstreamer-plugins-base1.0-dev \
+            libgstreamer-plugins-good1.0-dev \
+            libgstreamer-plugins-bad1.0-dev \
+            libgstreamer-plugins-ugly1.0-dev \
+            libgstreamer-libav1.0-dev \
+            libgstreamer-plugins-base1.0-dev \
+            libgstreamer-plugins-good1.0-dev \
+            libgstreamer-plugins-bad1.0-dev \
+            libgstreamer-plugins-ugly1.0-dev \
+            libgstreamer-libav1.0-dev
+
+      - name: Install Windows dependencies
+        if: matrix.platform == 'windows-latest'
+        run: |
+          # Install pkg-config equivalent for Windows
+          choco install pkg-config-lite -y
+          # Add to PATH
+          echo "$env:ChocolateyInstall\bin" >> $env:GITHUB_PATH
 
       - name: Install app dependencies and build web
         run: npm ci && npm run build
@@ -67,16 +128,20 @@ jobs:
         with:
           args: --config src-tauri/tauri.conf.json
           tagName: ${{ github.ref_name }}
-          releaseName: "[Unaffiliated] v__VERSION__"
+          releaseName: "[Unaffiliated] ${{ github.ref_name }}"
           releaseBody: |
+            ## Release ${{ github.ref_name }}
+            
+            ### Changes in this release:
             ${{ steps.build_changelog.outputs.changelog }}
+            
             See the assets to download this version and install.
-          releaseDraft: true
+          releaseDraft: false
           prerelease: false
 
       - name: Update README with new version
         if: success()
         run: |
-          echo "✅ Release ${{ github.ref_name }} built successfully!" > release-notes.txt
+          echo "✅ Manual Release ${{ github.ref_name }} built successfully!" > release-notes.txt
           echo "Check the release page for download links." >> release-notes.txt
 
