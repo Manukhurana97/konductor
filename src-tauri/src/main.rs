@@ -35,8 +35,14 @@ fn get_system_info() -> Result<serde_json::Value, String> {
 }
 
 fn main() {
-    // Initialize GTK for tray icon support
-    gtk::init().expect("Failed to initialize GTK");
+    // Initialize GTK for tray icon support (Linux only)
+    #[cfg(target_os = "linux")]
+    {
+        if let Err(e) = gtk::init() {
+            eprintln!("Failed to initialize GTK: {}", e);
+            // Continue without GTK if it fails
+        }
+    }
     
     let tray_icon = create_system_tray();
 

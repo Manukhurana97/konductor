@@ -20,6 +20,7 @@ pub fn create_system_tray() -> TrayIcon {
         "/usr/share/icons/hicolor/32x32/apps/konductor.png", // Installed system path
         "src-tauri/icons/32x32.png", // Development path
         "icons/32x32.png", // Alternative development path
+        "src-tauri/icons/icon.png", // Fallback to main icon
     ];
 
     let icon = {
@@ -43,7 +44,14 @@ pub fn create_system_tray() -> TrayIcon {
             for _ in 0..size * size {
                 rgba.extend_from_slice(&[255, 100, 100, 255]); // Red square
             }
-            found_icon = Some(tray_icon::Icon::from_rgba(rgba, size, size).unwrap());
+            found_icon = Some(tray_icon::Icon::from_rgba(rgba, size, size).unwrap_or_else(|_| {
+                // If even the fallback fails, create a minimal icon
+                let mut minimal_rgba = Vec::with_capacity(16 * 16 * 4);
+                for _ in 0..16 * 16 {
+                    minimal_rgba.extend_from_slice(&[255, 100, 100, 255]);
+                }
+                tray_icon::Icon::from_rgba(minimal_rgba, 16, 16).unwrap()
+            }));
         }
         
         found_icon.unwrap()
@@ -62,12 +70,15 @@ pub fn create_system_tray() -> TrayIcon {
 pub fn handle_system_tray_event(app: &AppHandle, event: TrayIconEvent) {
     match event {
         TrayIconEvent::Click { .. } => {
-            let window = app.get_webview_window("main").unwrap();
-            if window.is_visible().unwrap() {
-                window.hide().unwrap();
-            } else {
-                window.show().unwrap();
-                window.set_focus().unwrap();
+            if let Some(window) = app.get_webview_window("main") {
+                if let Ok(is_visible) = window.is_visible() {
+                    if is_visible {
+                        let _ = window.hide();
+                    } else {
+                        let _ = window.show();
+                        let _ = window.set_focus();
+                    }
+                }
             }
         }
         _ => {}
@@ -75,19 +86,19 @@ pub fn handle_system_tray_event(app: &AppHandle, event: TrayIconEvent) {
 }
 
 pub fn handle_menu_event(app: &AppHandle, event: MenuEvent) {
-    let window = app.get_webview_window("main").unwrap();
-
-    match event.id.0.as_str() {
-        "Show Konductor" => {
-            window.show().unwrap();
-            window.set_focus().unwrap();
+    if let Some(window) = app.get_webview_window("main") {
+        match event.id.0.as_str() {
+            "Show Konductor" => {
+                let _ = window.show();
+                let _ = window.set_focus();
+            }
+            "Hide Konductor" => {
+                let _ = window.hide();
+            }
+            "Quit" => {
+                std::process::exit(0);
+            }
+            _ => {}
         }
-        "Hide Konductor" => {
-            window.hide().unwrap();
-        }
-        "Quit" => {
-            std::process::exit(0);
-        }
-        _ => {}
     }
 }
