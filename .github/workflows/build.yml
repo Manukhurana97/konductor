@@ -80,7 +80,7 @@ jobs:
 
       - name: Generate version and tag
         id: version
-        if: github.ref == 'refs/heads/main' && matrix.platform == 'ubuntu-latest'
+        if: github.ref == 'refs/heads/main'
         run: |
           latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           echo "Latest tag: $latest_tag"
@@ -118,6 +118,13 @@ jobs:
           releaseDraft: false
           prerelease: false
 
+      - name: List build artifacts
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "Listing build artifacts for ${{ matrix.platform }}:"
+          find src-tauri/target/release/bundle/ -type f -name "*" 2>/dev/null || echo "No bundle directory found"
+          ls -la src-tauri/target/release/ 2>/dev/null || echo "No release directory found"
+
       - name: Upload artifacts (Release only)
         if: github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
@@ -127,7 +134,7 @@ jobs:
             src-tauri/target/release/bundle/
 
       - name: Create Release Summary
-        if: github.ref == 'refs/heads/main' && matrix.platform == 'ubuntu-latest' && success()
+        if: github.ref == 'refs/heads/main' && success()
         run: |
           echo "✅ Release ${{ steps.version.outputs.version }} built successfully!" > release-notes.txt
           echo "Platform: ${{ matrix.platform }}" >> release-notes.txt
