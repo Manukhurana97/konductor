@@ -103,6 +103,8 @@ jobs:
           args: --config src-tauri/tauri.conf.json
           distPath: ../dist/konductor
           iconPath: src-tauri/icons/icon.png
+          tagName: ${{ steps.version.outputs.version }}
+          releaseName: "[Unaffiliated] ${{ steps.version.outputs.version }}"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
